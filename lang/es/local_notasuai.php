@@ -26,5 +26,5 @@ $string['tests'] = 'Pruebas';
 $string['download'] = 'Descargar Excel';
 $string['error2'] = 'Seleccione al menos 1 prueba';
 $string['no_access'] = 'No Tienes Acceso a Esta Sección';
-$string['no_emarking'] = 'No Hay Caregorías con Emarkings';
+$string['no_emarking'] = 'No Hay Categorías con Emarkings';
 $string['all/none'] = 'Seleccionar todos/ninguno';
