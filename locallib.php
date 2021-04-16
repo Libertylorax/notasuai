@@ -120,7 +120,6 @@ function emarking_validate_rubric(context $context, $die, $showrubricbuttons) {
 }
 
 function  export_to_excel($emarking, $context = null){
-
         global $DB, $CFG;
         // Validate that we have a rubric associated
         list($gradingmanager, $gradingmethod, $definition, $rubriccontroller) =

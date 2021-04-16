@@ -91,33 +91,51 @@
 
 	?>
 
-	<script>
-	var observer = new MutationObserver(function(mutations) {
-		mutations.forEach(function(mutation) {
-			if (mutation.type == "attributes") {
-				console.log("attributes changed")
-				document.querySelector("#id_class_submit").disabled = false
-			}
-		});
-	});
+	<script>	
+		//Select all/none checkboxes function
+		document.getElementById("id_select-all").addEventListener("click", function() {
+			var checkboxes = document.querySelectorAll(".form-check-input");
+			var enabled = 0;
+			var checked = 0;
+			var unchecked = 0;
 
-	observer.observe(document.querySelector("#id_class_submit"), {
-		attributes: true //configure it to listen to attribute changes
-	});
-	
-	//select all js button
-	document.querySelector("#id_select-all").addEventListener("click", function() {
-		//console.log("selecting")
-		var checkboxes = document.querySelectorAll(".form-check-input");
-		checkboxes.forEach(checkbox => {
-			if(checkbox.disabled === false)
-			{
-				checkbox.checked = true;
+			checkboxes.forEach(checkbox => {
+				if(checkbox.disabled != true){
+					enabled++;
+					if(checkbox.checked == false){
+						unchecked++;
+					}
+					else if(checkbox.checked == true){
+						checked++;
+					}
+				}
+			});
+
+			if(enabled == checked){
+				checkboxes.forEach(checkbox => {
+					if(checkbox.disabled != true){
+						checkbox.checked = false;
+					}	
+				});
 			}
-			else if(checkbox.disabled === true)
-			{
-				checkbox.checked = false;
+			else if(enabled == unchecked || checked >0){
+				checkboxes.forEach(checkbox => {
+					if(checkbox.disabled != true){
+						checkbox.checked = true;
+					}	
+				});
 			}
 		});
-	});
+        //Enable download and cancel button after downloading excel
+        document.getElementById("id_submitbutton").addEventListener("click", function() {
+            var cancel_btn = document.getElementById("id_cancel")
+            var submit_btn = document.getElementById("id_submitbutton")
+            var delayInMilliseconds = 2000; //2 seconds
+
+            setTimeout(function() {
+                console.log("delay")
+                cancel_btn.disabled = false;
+                submit_btn.disabled = false;
+            }, delayInMilliseconds);
+        });
 	</script>
