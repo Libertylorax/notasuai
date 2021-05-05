@@ -41,7 +41,6 @@
     
 	if (is_siteadmin($USER) || is_manager()){
 	// show all
-		$PAGE->set_title(get_string('title', 'local_notasuai'));
 		$PAGE->set_heading(get_string('heading', 'local_notasuai'));
 
 		$categoryform = new category();

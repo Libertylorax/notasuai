@@ -24,23 +24,23 @@
     require_once ($CFG->libdir."/formslib.php");
     require_once("$CFG->libdir/excellib.class.php");
     require_once($CFG->dirroot . '/local/notasuai/locallib.php');
-	
+
+ //Form for categories
 class category extends moodleform {
 
     function definition(){
-        global $DB, $CFG, $USER;
+        global $DB, $USER;
         $mform = $this->_form;
-		$contextsystem = context_system::instance();
-		
+
 		$mform->addElement('header', 'nameforyourheaderelement', get_string('category', 'local_notasuai'));
-		
+
         if(is_siteadmin()){
           // get category
           $category_query = "SELECT id, name FROM {course_categories}";
 		  $category_sql = $DB->get_records_sql($category_query, array());
         }
         else{
-          //Query to get the categorys of the secretary
+          //Query to get the categories of the secretary
 			$category_query = "SELECT cc.*
                 FROM {course_categories} cc
                 INNER JOIN {role_assignments} ra ON (ra.userid = ?)
@@ -85,19 +85,20 @@ class category extends moodleform {
 	}
 }
 
+//Form for courses
 class course extends moodleform{
 
     function definition()
     {
-        global $DB, $CFG, $OUTPUT, $USER;
+        global $DB;
         $mform = $this->_form;
         $category = $this->_customdata;
 
         $mform->addElement ("hidden", "category_id", $category);
         $mform->setType ("category_id", PARAM_INT);
-		$contextsystem = context_system::instance();
 
-		//Query to get the categorys
+
+		//Query to get the categories
 		$class_query = "SELECT ed.id as edid, e.id as emarkingid, ed.status, c.id as courseid, c.fullname
 						FROM {emarking_draft} ed
 						INNER JOIN {emarking} e ON (e.id = ed.emarkingid)
@@ -156,7 +157,7 @@ class course extends moodleform{
     }
 
 	function validation($data,$files) {
-		global $DB, $CFG, $OUTPUT;
+
         $errors = array();
 		
 		$confirmed = 0;
@@ -181,15 +182,16 @@ class course extends moodleform{
     }
 }
 
+//Form for Tests
 class tests extends moodleform {
 
     function definition(){
 
-        global $DB, $CFG, $USER;
+        global $DB;
 
         $mform = $this->_form;
         $courses = $this->_customdata;
-		$contextsystem = context_system::instance();
+
 
 		//Adding Select all/none checkboxes aligned to the right
 		$mform->addElement('html', '<div class="container"><div class="row"><div class="ml-auto">');
@@ -222,15 +224,13 @@ class tests extends moodleform {
 		$num = 0;
         $classesarray = array();
         foreach($courses as $id){
-            
-			$queryparams = array($USER->id, "managerreport", $id);
-			
+
 			// Get Records
             $class_sql = $DB->get_records_sql($class_query, array($id));
             $test_sql = $DB->get_records_sql($test_query, array($id));
 			
             foreach($class_sql as $class){
-				
+
 				if ($class->id == $id){
 					$aux = array();
 					array_push($aux,$class->fullname,$class->id);
@@ -286,9 +286,6 @@ class tests extends moodleform {
             $slice = array_slice($class,2);
             if (count($slice) > 0){
                 $name = $class[0];
-                $id = $class[1];
-                $status = $class ? 1 : 0;
-                $testsarray = array();
                 $m=1;
                 $o=1;
 				
@@ -333,7 +330,7 @@ class tests extends moodleform {
 		// Output button
         $this->add_action_buttons(true,get_string('download', 'local_notasuai'));
     }
-	
+
 	function validation($data,$files) {
         $errors = array();
 		$confirmed = 0;

@@ -29,7 +29,6 @@
 
 
 function local_notasuai_pluginfile($course, $cm, $context, $filearea, array $args, $forcedownload, array $options = array()) {
-	global $DB, $CFG, $USER;
 	
 	require_login();
 	$filename = array_pop($args);
