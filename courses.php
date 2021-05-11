@@ -34,7 +34,7 @@
         die();
     }
 
-    $url_view= '/local/notasuai/view.php';
+    $url_view= '/local/notasuai/courses.php';
 	$url = new moodle_url($url_view);
 
     // Possible actions -> view, add. Standard is view mode

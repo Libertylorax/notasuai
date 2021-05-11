@@ -71,8 +71,8 @@ function emarking_validate_rubric(context $context, $die, $showrubricbuttons) {
     // Get rubric instance.
     $gradingmanager = get_grading_manager($context, 'mod_emarking', 'attempt');
     $gradingmethod = $gradingmanager->get_active_method();
-    $definition = null;
-    $rubriccontroller = null;
+
+
     if ($gradingmethod !== 'rubric') {
         $gradingmanager->set_active_method('rubric');
         $gradingmethod = $gradingmanager->get_active_method();
@@ -125,13 +125,14 @@ function  export_to_excel($emarking, $context = null){
         list($gradingmanager, $gradingmethod, $definition, $rubriccontroller) =
             emarking_validate_rubric($context, false, false);
         // Calculate levels indexes in forced formative feedback (no grades)
-        $levelsindex = array();
+
         $criteria = 0;
+
 		$questions = array();
 		$pos = 0;
 		
 		// Starting the loop
-        $current = 0;		
+
 		// Basic headers that go everytime
         $headers = array(
             '00course' => get_string('course', 'local_notasuai'),
@@ -212,10 +213,10 @@ function  export_to_excel($emarking, $context = null){
 		}
 		
 		//Loop to get the data
-		$test = 1;
-		$studentname = '';
+
+
 		$current_line = -1;
-		$lastrow = null;
+
 		
 		foreach ($emarking as $id){
 			// get tests
