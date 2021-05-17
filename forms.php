@@ -52,7 +52,7 @@ class category extends moodleform {
 			$category_sql = $DB->get_records_sql($category_query, $queryparams);
 		}
 		
-		$class_query = "SELECT c.id as courseid, c.fullname, e.id as emarkingid, ed.id as edid, ed.status AS status
+		$class_query = "SELECT ed.id as edid, e.id as emarkingid, c.id as courseid, c.fullname,  ed.status AS status
 						FROM {course} c
 						INNER JOIN {emarking} e ON (e.course = c.id)
 						INNER JOIN {emarking_draft} ed ON (ed.emarkingid = e.id) 
