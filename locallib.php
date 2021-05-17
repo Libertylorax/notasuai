@@ -65,82 +65,13 @@ function is_manager() {
 	return true;
 }
 
-function emarking_validate_rubric(context $context, $die, $showrubricbuttons) {
-    global $OUTPUT, $CFG, $COURSE, $USER;
-    require_once ($CFG->dirroot . '/grade/grading/lib.php');
-    // Get rubric instance.
-    $gradingmanager = get_grading_manager($context, 'mod_emarking', 'attempt');
-    $gradingmethod = $gradingmanager->get_active_method();
-    $definition = null;
-    $rubriccontroller = null;
-    if ($gradingmethod !== 'rubric') {
-        $gradingmanager->set_active_method('rubric');
-        $gradingmethod = $gradingmanager->get_active_method();
-    }
-    $rubriccontroller = $gradingmanager->get_controller($gradingmethod);
-    $definition = $rubriccontroller->get_definition();
-    $managerubricurl = $gradingmanager->get_management_url();
-    $importrubricurl = new moodle_url("/mod/emarking/marking/importrubric.php", array(
-        "id" => $context->instanceid
-    ));
-    // Validate that activity has a rubric ready.
-    if ($gradingmethod !== 'rubric' || !$definition || $definition == null) {
-        if ($showrubricbuttons) {
-        	if(has_capability('mod/emarking:grade', $context)) {
-            	echo $OUTPUT->notification(get_string('rubricneeded', 'mod_emarking'), 'notifyproblem');
-        	} else {
-        		echo $OUTPUT->notification('La actividad no está completamente configurada, por favor vuelva más tarde.', 'notifyproblem');
-        	}
-            if (has_capability("mod/emarking:addinstance", $context)) {
-                echo "<table>";
-                echo "<tr><td>" . $OUTPUT->single_button($managerubricurl, get_string('createrubric', 'mod_emarking'), "GET") . "</td>";
-                echo "<td>" . $OUTPUT->single_button($importrubricurl, get_string('importrubric', 'mod_emarking'), "GET") . "</td></tr>";
-                echo "</table>";
-            }
-        }
-        if ($die) {
-            echo $OUTPUT->footer();
-            die();
-        }
-    }
-    if (isset($definition->status)) {
-        if ($definition->status == 10) {
-            echo $OUTPUT->notification(get_string('rubricdraft', 'mod_emarking'), 'notifyproblem');
-            if (has_capability("mod/emarking:addinstance", $context)) {
-                echo $OUTPUT->single_button($managerubricurl, get_string('completerubric', 'mod_emarking'));
-            }
-        }
-    }
-    return array(
-        $gradingmanager,
-        $gradingmethod,
-        $definition,
-        $rubriccontroller
-    );
-}
-
 function  export_to_excel($emarking, $context = null){
         global $DB, $CFG;
-        // Validate that we have a rubric associated
-        list($gradingmanager, $gradingmethod, $definition, $rubriccontroller) =
-            emarking_validate_rubric($context, false, false);
-        // Calculate levels indexes in forced formative feedback (no grades)
-        $levelsindex = array();
-        /*foreach($definition->rubric_criteria as $crit) {
-            $total = count($crit['levels']);
-            $current = 0;
-            foreach($crit['levels'] as $lvl) {
-                $current++;
-                $levelsindex[$lvl['id']] = $total - $current + 1;
-            }
-        }*/
-		
+
         $criteria = 0;
 		$questions = array();
 		$pos = 0;
-		
-		// Starting the loop
-        $current = 0;		
+
 		// Basic headers that go everytime
         $headers = array(
             '00course' => get_string('course', 'local_notasuai'),
@@ -219,13 +150,10 @@ function  export_to_excel($emarking, $context = null){
 			$aux++;
 			$part++;
 		}
-		
-		//Loop to get the data
-		$test = 1;
-		$studentname = '';
+
 		$current_line = -1;
-		$lastrow = null;
-		
+
+        //Loop to get the data
 		foreach ($emarking as $id){
 			// get tests
 			$testquery = "SELECT cc.fullname AS course,
@@ -357,7 +285,7 @@ function emarking_save_data_to_excel($headers, $tabledata, $excelfilename, $coln
 	$titleformat->set_size(10);
     foreach (array_values($headers) as $d) {
         $myxls->write($row, $col, $d, $titleformat);
-		//$myxls->write_string($row, $col, $d);
+
         $col ++;
     }
     // Writing the data.
@@ -366,10 +294,10 @@ function emarking_save_data_to_excel($headers, $tabledata, $excelfilename, $coln
         $col = 0;
         foreach (array_values($data) as $d) {			
             if ($row > 0 && $col >= $colnumber && $row <= $rows_total && $col <= $columns_total) {
-                //$myxls->write($row, $col, $d);
+
 				$myxls->write_number($row, $col, $d);
             } else {
-                //$myxls->write($row, $col, $d);
+
 				$myxls->write_string($row, $col, $d);
             }
             $col ++;

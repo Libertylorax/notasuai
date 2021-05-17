@@ -34,7 +34,7 @@
         die();
     }
 
-    $url_view= '/local/notasuai/view.php';
+    $url_view= '/local/notasuai/courses.php';
 	$url = new moodle_url($url_view);
 
     // Possible actions -> view, add. Standard is view mode
@@ -49,7 +49,6 @@
 		if ($exam_check == 'export'){
 			export_to_excel($exam_aux, $context);
 		}
-		//redirect(new moodle_url("/local/notasuai/courses.php", array('courses'=>$courses)));
 	}
 	
 	$PAGE->set_context($context);
