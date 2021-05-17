@@ -32,6 +32,7 @@ class category extends moodleform {
         global $DB, $USER;
         $mform = $this->_form;
 
+        //Form name
 		$mform->addElement('header', 'nameforyourheaderelement', get_string('category', 'local_notasuai'));
 
         if(is_siteadmin()){
@@ -88,14 +89,14 @@ class category extends moodleform {
 //Form for courses
 class course extends moodleform{
 
-    function definition()
-    {
-        global $DB;
-        $mform = $this->_form;
-        $category = $this->_customdata;
+	function definition()
+	{
+		global $DB;
+		$mform = $this->_form;
+		$category = $this->_customdata;
 
-        $mform->addElement ("hidden", "category_id", $category);
-        $mform->setType ("category_id", PARAM_INT);
+		$mform->addElement ("hidden", "category_id", $category);
+		$mform->setType ("category_id", PARAM_INT);
 
 
 		//Query to get the categories
@@ -107,32 +108,32 @@ class course extends moodleform{
 
 		$class_sql = $DB->get_records_sql($class_query, array($category));
 
-        // Get Records
-        //create list of courses with checkboxs
-        $mform->addElement('header', 'nameforyourheaderelement', get_string('course', 'local_notasuai'));
-        $this->add_checkbox_controller(1);
+		// Get Records
+		//create list of courses with checkboxs
+		$mform->addElement('header', 'nameforyourheaderelement', get_string('course', 'local_notasuai'));
+		$this->add_checkbox_controller(1);
 
-        $th_title = get_string("course", "local_notasuai");
-        $mform->addElement('html', '<table class="table table-striped table-condensed table-hover">');
-        $mform->addElement('html', '<thead>');
-        $mform->addElement('html', '<tr>');
-        $mform->addElement('html', '<th>#');
-        $mform->addElement('html', '</th>');
-        $mform->addElement('html', '<th>'.$th_title);
-        $mform->addElement('html', '</th>');
-        $mform->addElement('html', '</tr>');
-        $mform->addElement('html', '</thead>');
-        $mform->addElement('html', '<tbody>');
+		$th_title = get_string("course", "local_notasuai");
+		$mform->addElement('html', '<table class="table table-striped table-condensed table-hover">');
+		$mform->addElement('html', '<thead>');
+		$mform->addElement('html', '<tr>');
+		$mform->addElement('html', '<th>#');
+		$mform->addElement('html', '</th>');
+		$mform->addElement('html', '<th>'.$th_title);
+		$mform->addElement('html', '</th>');
+		$mform->addElement('html', '</tr>');
+		$mform->addElement('html', '</thead>');
+		$mform->addElement('html', '<tbody>');
 
-        $counter = 1;
+		$counter = 1;
 		$lastclass = 0;
 
-		foreach ($class_sql as $class) {			
-			if($class->status == 20 && $class->courseid != $lastclass){				
+		foreach ($class_sql as $class) {
+			if($class->status == 20 && $class->courseid != $lastclass){
 				$name = $class->fullname;
 				$course[$class->courseid] = $name;
 				$id = $class->courseid;
-				
+
 				$mform->addElement('html', '<tr>');
 				$mform->addElement('html', '<td>'.$counter.'</td>');
 				$mform->addElement('html', '<td>');
@@ -141,25 +142,25 @@ class course extends moodleform{
 				$mform->addElement('html', '</td>');
 				$mform->addElement('html', '</tr>');
 				$counter++;
-					
+
 				$lastclass = $class->courseid;
 			}
-        }
+		}
 
-        $mform->addElement('html', '</tbody>');
-        $mform->addElement('html', '</table>');
+		$mform->addElement('html', '</tbody>');
+		$mform->addElement('html', '</table>');
 
-        $mform->addElement ("hidden", "action", "redirect");
-        $mform->setType ("action", PARAM_TEXT);
-		
-        // Output button
-        $mform->addElement('submit','class_submit',get_string('button2', 'local_notasuai'));
-    }
+		$mform->addElement ("hidden", "action", "redirect");
+		$mform->setType ("action", PARAM_TEXT);
+
+		// Output button
+		$mform->addElement('submit','class_submit',get_string('button2', 'local_notasuai'));
+	}
 
 	function validation($data,$files) {
 
-        $errors = array();
-		
+		$errors = array();
+
 		$confirmed = 0;
 		$N = count($data);
 		$n = 0;
@@ -173,15 +174,14 @@ class course extends moodleform{
 			$n++;
 		}
 
-        if ($confirmed != 0){
+		if ($confirmed != 0){
 		}
-        else{
-            $errors["class_submit"] = get_string('error1', 'local_notasuai');
-        }
+		else{
+			$errors["class_submit"] = get_string('error1', 'local_notasuai');
+		}
 		return $errors;
-    }
+	}
 }
-
 //Form for Tests
 class tests extends moodleform {
 
@@ -191,7 +191,6 @@ class tests extends moodleform {
 
         $mform = $this->_form;
         $courses = $this->_customdata;
-
 
 		//Adding Select all/none checkboxes aligned to the right
 		$mform->addElement('html', '<div class="container"><div class="row"><div class="ml-auto">');
@@ -203,9 +202,6 @@ class tests extends moodleform {
 
         $mform->addElement('header', 'nameforyourheaderelement', get_string('tests', 'local_notasuai'));
         $th_title = get_string("course", "local_notasuai");
-
-		
-
         $mform->addElement('html', '<table class="table table-striped table-condensed table-hover">');
         $mform->addElement('html', '<thead>');
         $mform->addElement('html', '<tr>');
