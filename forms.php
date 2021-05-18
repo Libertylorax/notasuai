@@ -126,10 +126,11 @@ class course extends moodleform{
 		$mform->addElement('html', '<tbody>');
 
 		$counter = 1;
-		$lastclass = 0;
+		$classes = [];
 
 		foreach ($class_sql as $class) {
-			if($class->status == 20 && $class->courseid != $lastclass){
+			if(!in_array($class->courseid, $classes))
+			{
 				$name = $class->fullname;
 				$course[$class->courseid] = $name;
 				$id = $class->courseid;
@@ -143,7 +144,7 @@ class course extends moodleform{
 				$mform->addElement('html', '</tr>');
 				$counter++;
 
-				$lastclass = $class->courseid;
+				$classes[] = $class->courseid;
 			}
 		}
 
