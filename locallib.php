@@ -295,7 +295,7 @@ function emarking_save_data_to_excel($headers, $tabledata, $excelfilename, $coln
         foreach (array_values($data) as $d) {			
             if ($row > 0 && $col >= $colnumber && $row <= $rows_total && $col <= $columns_total) {
 
-				$myxls->write_number($row, $col, $d);
+				$myxls->write($row, $col, $d);
             } else {
 
 				$myxls->write_string($row, $col, $d);
