@@ -65,212 +65,207 @@ function is_manager() {
 	return true;
 }
 
-function  export_to_excel($emarking, $context = null){
-        global $DB, $CFG;
+function export_to_excel($emarking, $context = null){
+    global $DB, $CFG;
 
-        $criteria = 0;
-		$questions = array();
-		$pos = 0;
+    $criteria = 0;
+    $questions = array();
+    $pos = 0;
 
-		// Basic headers that go everytime
-        $headers = array(
-            '00course' => get_string('course', 'local_notasuai'),
-            '01exam' => get_string('tests', 'local_notasuai'),
-            '02idnumber' => get_string('idnumber'),
-            '03lastname' => get_string('lastname'),
-            '04firstname' => get_string('firstname'));
-        $tabledata = array();
-        $data = array();
-		$part = 0;
-		$crit = array();
+    // Basic headers that go everytime
+    $headers = array(
+        '00course' => get_string('course', 'local_notasuai'),
+        '01exam' => get_string('tests', 'local_notasuai'),
+        '02idnumber' => get_string('idnumber'),
+        '03lastname' => get_string('lastname'),
+        '04firstname' => get_string('firstname'));
+    $tabledata = array();
+    $data = array();
+    $part = 0;
+    $crit = array();
 		
-		//Loop to determine questions and headers
-		foreach ($emarking as $id){
-			// get tests
-			$testquery = "SELECT cc.fullname AS course,
-				e.name AS exam,
-				u.id,
-				u.idnumber,
-				u.lastname,
-				u.firstname,
-				cr.id criterionid,
-				cr.description,
-				l.id levelid,
-				IFNULL(l.score, 0) AS score,
-				IFNULL(c.bonus, 0) AS bonus,
-				IFNULL(l.score,0) + IFNULL(c.bonus,0) AS totalscore,
-				d.grade
-				FROM {emarking} e
-				INNER JOIN {emarking_submission} s ON (e.id = :emarkingid AND e.id = s.emarking)
-				INNER JOIN {emarking_draft} d ON (d.submissionid = s.id AND d.qualitycontrol=0)
-				INNER JOIN {course} cc ON (cc.id = e.course)
-				INNER JOIN {user} u ON (s.student = u.id)
-				INNER JOIN {emarking_page} p ON (p.submission = s.id)
-				LEFT JOIN {emarking_comment} c ON (c.page = p.id AND d.id = c.draft AND c.levelid > 0)
-				LEFT JOIN {gradingform_rubric_levels} l ON (c.levelid = l.id)
-				LEFT JOIN {gradingform_rubric_criteria} cr ON (cr.id = l.criterionid)
-				WHERE (d.status=20)
-				ORDER BY cc.fullname ASC, e.name ASC, u.lastname ASC, u.firstname ASC, cr.sortorder";
+    //Loop to determine questions and headers
+    foreach ($emarking as $id){
+        // get tests
+        $testquery = "SELECT cc.fullname AS course,
+			e.name AS exam,
+			u.id,
+			u.idnumber,
+			u.lastname,
+			u.firstname,
+			cr.id criterionid,
+			cr.description,
+			l.id levelid,
+			IFNULL(l.score, 0) AS score,
+			IFNULL(c.bonus, 0) AS bonus,
+			IFNULL(l.score,0) + IFNULL(c.bonus,0) AS totalscore,
+			d.grade
+			FROM {emarking} e
+			INNER JOIN {emarking_submission} s ON (e.id = :emarkingid AND e.id = s.emarking)
+			INNER JOIN {emarking_draft} d ON (d.submissionid = s.id AND d.qualitycontrol=0)
+			INNER JOIN {course} cc ON (cc.id = e.course)
+			INNER JOIN {user} u ON (s.student = u.id)
+			INNER JOIN {emarking_page} p ON (p.submission = s.id)
+			LEFT JOIN {emarking_comment} c ON (c.page = p.id AND d.id = c.draft AND c.levelid > 0)
+			LEFT JOIN {gradingform_rubric_levels} l ON (c.levelid = l.id)
+			LEFT JOIN {gradingform_rubric_criteria} cr ON (cr.id = l.criterionid)
+			WHERE (d.status=20)
+			ORDER BY cc.fullname ASC, e.name ASC, u.lastname ASC, u.firstname ASC, cr.sortorder";
 		
-			// Get data and generate a list of questions.
-			$rows2 = $DB->get_recordset_sql($testquery, array(
-				'emarkingid' => $id));
+        // Get data and generate a list of questions.
+        $rows2 = $DB->get_recordset_sql($testquery, array(
+            'emarkingid' => $id));
 											
-			// Make a list of all criteria
-			foreach ($rows2 as $row) {
-				if (array_search($row->description, $questions) === false && $row->description) {
-					$questions [$pos] = $row->description;
-					$pos++;
-				}
-			}
+        // Make a list of all criteria
+        foreach ($rows2 as $row) {
+            if (array_search($row->description, $questions) === false && $row->description) {
+                $questions [$pos] = $row->description;
+                $pos++;
+            }
+        }
 			
-			if ($criteria <= count($questions)){
-				$criteria = count($questions);
-				}
+        if ($criteria <= count($questions)){
+            $criteria = count($questions);
+        }
 			
-			$part++;
-		}
+        $part++;
+    }
 		
-		$columns_total = $criteria + 6;
+    $columns_total = $criteria + 6;
 		
-		$aux = 0;
-		$part = 0;
-		foreach($questions as $q){
-			$index = 10 + $part;
-			$keyquestion = $index . "" . $questions[$part];			
-			$crit[$part] = $keyquestion;
+    $aux = 0;
+    $part = 0;
+    foreach($questions as $q){
+        $index = 10 + $part;
+        $keyquestion = $index . "" . $questions[$part];
+        $crit[$part] = $keyquestion;
 			
-			$headers[$keyquestion] = $q;
+        $headers[$keyquestion] = $q;
 			
-			foreach($crit as $keyquestion){
-				if (!isset($headers[$keyquestion]) && $aux == array_search($keyquestion,$crit) ){
-					$headers[$keyquestion] = $q;
-				}
-			}
-			$aux++;
-			$part++;
-		}
+        foreach($crit as $keyquestion){
+            if (!isset($headers[$keyquestion]) && $aux == array_search($keyquestion,$crit) ){
+                $headers[$keyquestion] = $q;
+            }
+        }
+        $aux++;
+        $part++;
+    }
 
-		$current_line = -1;
+    $current_line = -1;
 
-        //Loop to get the data
-		foreach ($emarking as $id){
-			// get tests
-			$testquery = "SELECT cc.fullname AS course,
-				e.name AS exam,
-				u.id,
-				u.idnumber,
-				u.lastname,
-				u.firstname,
-				cr.id criterionid,
-				cr.description,
-				l.id levelid,
-				IFNULL(l.score, 0) AS score,
-				IFNULL(c.bonus, 0) AS bonus,
-				IFNULL(l.score,0) + IFNULL(c.bonus,0) AS totalscore,
-				d.grade,
-				d.status status
-				FROM {emarking} e
-				INNER JOIN {emarking_submission} s ON (e.id = :emarkingid AND e.id = s.emarking)
-				INNER JOIN {emarking_draft} d ON (d.submissionid = s.id AND d.qualitycontrol=0)
-				INNER JOIN {course} cc ON (cc.id = e.course)
-				INNER JOIN {user} u ON (s.student = u.id)
-				INNER JOIN {emarking_page} p ON (p.submission = s.id)
-				LEFT JOIN {emarking_comment} c ON (c.page = p.id AND d.id = c.draft AND c.levelid > 0)
-				LEFT JOIN {gradingform_rubric_levels} l ON (c.levelid = l.id)
-				LEFT JOIN {gradingform_rubric_criteria} cr ON (cr.id = l.criterionid)
-				ORDER BY cc.fullname ASC, e.name ASC, u.lastname ASC, u.firstname ASC, cr.sortorder";
+    //Loop to get the data
+    foreach ($emarking as $id){
+        // get tests
+        $testquery = "SELECT cc.fullname AS course,
+			e.name AS exam,
+			u.id,
+			u.idnumber,
+			u.lastname,
+			u.firstname,
+			cr.id criterionid,
+			cr.description,
+			l.id levelid,
+			IFNULL(l.score, 0) AS score,
+			IFNULL(c.bonus, 0) AS bonus,
+			IFNULL(l.score,0) + IFNULL(c.bonus,0) AS totalscore,
+			d.grade,
+			d.status status
+			FROM {emarking} e
+			INNER JOIN {emarking_submission} s ON (e.id = :emarkingid AND e.id = s.emarking)
+			INNER JOIN {emarking_draft} d ON (d.submissionid = s.id AND d.qualitycontrol=0)
+			INNER JOIN {course} cc ON (cc.id = e.course)
+			INNER JOIN {user} u ON (s.student = u.id)
+			INNER JOIN {emarking_page} p ON (p.submission = s.id)
+			LEFT JOIN {emarking_comment} c ON (c.page = p.id AND d.id = c.draft AND c.levelid > 0)
+			LEFT JOIN {gradingform_rubric_levels} l ON (c.levelid = l.id)
+			LEFT JOIN {gradingform_rubric_criteria} cr ON (cr.id = l.criterionid)
+			ORDER BY cc.fullname ASC, e.name ASC, u.lastname ASC, u.firstname ASC, cr.sortorder";
 		
-			// Get data.
-			$rows2 = $DB->get_recordset_sql($testquery, array(
-				'emarkingid' => $id));
+        // Get data.
+        $rows2 = $DB->get_recordset_sql($testquery, array(
+            'emarkingid' => $id));
 
-			// Now iterate through students
-			foreach ($rows2 as $row) {
+        // Now iterate through students
+        foreach ($rows2 as $row) {
 								
-				if($row->description){
+            if($row->description){
 					
-					if($row->status >= 20){
-					// compares the current row with the last one, if they match, it just assings the grade for the current criteria
-					if(array_search($row->course,$data) && array_search($row->exam,$data) && array_search($row->idnumber,$data) && array_search($row->lastname,$data) && array_search($row->firstname,$data)){
+                if($row->status >= 20){
+                // compares the current row with the last one, if they match, it just assings the grade for the current criteria
+				if(array_search($row->course,$data) && array_search($row->exam,$data) && array_search($row->idnumber,$data) && array_search($row->lastname,$data) && array_search($row->firstname,$data)){
 						
-						$part1 = 0;
-						while($part1 < $part){
-							$index = 10 + $part1;
-							$P = $index . "" . $row->description;
-							
-							if(array_search($P,$crit)){
-								$data [$P] = $row->totalscore;
-							}
-							$part1++;
-						}
-					}
-					// if they don't match, it means we are with a new student, and it creates a new line for that student
-					else{
-						$current_line++;
-						
-						$data = array(
-						'00course' => $row->course,
-						'01exam' => $row->exam,
-						'02idnumber' => $row->idnumber,
-						'03lastname' => $row->lastname,
-						'04firstname' => $row->firstname);
-						$data['99grade'] = $row->grade;
-						
-						$part1 = 0;
-						while($part1 < $part){
-							$index = 10 + $part1;
-							$P = $index . "" . $row->description;
+				    $part1 = 0;
+				    while($part1 < $part){
+				        $index = 10 + $part1;
+				        $P = $index . "" . $row->description;
 
-							if(array_search($P,$crit)){
-								$data [$P] = $row->totalscore;
-							}
-							elseif($P == $crit[0]){
-								$data [$P] = $row->totalscore;
-							}
-							$part1++;
-						}
+				        if(array_search($P,$crit)){
+				            $data [$P] = $row->totalscore;
+				        }
+				        $part1++;
+				    }
+				}
+				// if they don't match, it means we are with a new student, and it creates a new line for that student
+                else{
+                    $current_line++;
+						
+                    $data = array(
+					'00course' => $row->course,
+					'01exam' => $row->exam,
+					'02idnumber' => $row->idnumber,
+					'03lastname' => $row->lastname,
+					'04firstname' => $row->firstname);
+					$data['99grade'] = $row->grade;
+						
+					$part1 = 0;
+					while($part1 < $part){
+					    $index = 10 + $part1;
+					    $P = $index . "" . $row->description;
+
+					    if(array_search($P,$crit)){
+					        $data [$P] = $row->totalscore;
+					    }
+					    elseif($P == $crit[0]){
+					        $data [$P] = $row->totalscore;
+					    }
+					    $part1++;
 					}
+                }
 					
 					$tabledata [$current_line] = $data;
 				}
-				}
-
-			}
-			// Add the grade if it's summative feedback
-			if(!isset($CFG->emarking_formativefeedbackonly) || !$CFG->emarking_formativefeedbackonly) {
-				$headers ['99grade'] = get_string('grade');
-			}
-		}
-
-        ksort($tabledata);
-        // Now pivot the table to form the Excel report
-        $current = 0;
-        $newtabledata = array();
-        foreach ($tabledata as $data) {
-            foreach ($questions as $q) {
-                $index = 10 + array_search($q, $questions);
-                if (! isset($data [$index . "" . $q])) {
-                    $data [$index . "" . $q] = '';
-                }
             }
-            ksort($data);
-            $current ++;
-            $newtabledata [] = $data;
-        }
-        $tabledata = $newtabledata;
-		
-		$rows_total = $current +1;
-        
-		// The file name of the report
-        $excelfilename = clean_filename("ReporteUAI" . "-grades.xlsx");
-        // Save the data to Excel
-        emarking_save_data_to_excel($headers, $tabledata, $excelfilename, 5, $columns_total, $rows_total);
-}
 
-function emarking_save_data_to_excel($headers, $tabledata, $excelfilename, $colnumber = 5, $columns_total, $rows_total) {
-    global $CFG;
-	
+        }
+        // Add the grade if it's summative feedback
+        if(!isset($CFG->emarking_formativefeedbackonly) || !$CFG->emarking_formativefeedbackonly) {
+            $headers ['99grade'] = get_string('grade');
+        }
+    }
+
+    ksort($tabledata);
+    // Now pivot the table to form the Excel report
+    $current = 0;
+    $newtabledata = array();
+    foreach ($tabledata as $data) {
+        foreach ($questions as $q) {
+            $index = 10 + array_search($q, $questions);
+            if (! isset($data [$index . "" . $q])) {
+                $data [$index . "" . $q] = '';
+            }
+        }
+        ksort($data);
+        $current ++;
+        $newtabledata [] = $data;
+    }
+    $tabledata = $newtabledata;
+		
+    $rows_total = $current +1;
+        
+    // The file name of the report
+    $excelfilename = clean_filename("ReporteUAI" . "-grades.xlsx");
+    // Save the data to Excel
+    $colnumber = 5;
 	// Creating a workbook.
     $workbook = new MoodleExcelWorkbook("-");
     // Sending HTTP headers.
@@ -292,7 +287,7 @@ function emarking_save_data_to_excel($headers, $tabledata, $excelfilename, $coln
     $row = 1;
     foreach ($tabledata as $data) {
         $col = 0;
-        foreach (array_values($data) as $d) {			
+        foreach (array_values($data) as $d) {
             if ($row > 0 && $col >= $colnumber && $row <= $rows_total && $col <= $columns_total) {
 
 				$myxls->write($row, $col, $d);
