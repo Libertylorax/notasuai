@@ -78,7 +78,9 @@ function export_to_excel($emarking, $context = null){
         '01exam' => get_string('tests', 'local_notasuai'),
         '02idnumber' => get_string('idnumber'),
         '03lastname' => get_string('lastname'),
-        '04firstname' => get_string('firstname'));
+        '04firstname' => get_string('firstname'),
+        '05grade'=>get_string('grade'),
+    );
     $tabledata = array();
     $data = array();
     $part = 0;
@@ -210,12 +212,13 @@ function export_to_excel($emarking, $context = null){
                     $current_line++;
 						
                     $data = array(
-					'00course' => $row->course,
-					'01exam' => $row->exam,
-					'02idnumber' => $row->idnumber,
-					'03lastname' => $row->lastname,
-					'04firstname' => $row->firstname);
-					$data['99grade'] = $row->grade;
+					    '00course' => $row->course,
+					    '01exam' => $row->exam,
+					    '02idnumber' => $row->idnumber,
+					    '03lastname' => $row->lastname,
+					    '04firstname' => $row->firstname,
+                        '05grade' => $row->grade
+                    );
 						
 					$part1 = 0;
 					while($part1 < $part){
@@ -239,7 +242,7 @@ function export_to_excel($emarking, $context = null){
         }
         // Add the grade if it's summative feedback
         if(!isset($CFG->emarking_formativefeedbackonly) || !$CFG->emarking_formativefeedbackonly) {
-            $headers ['99grade'] = get_string('grade');
+            $headers ['05grade'] = get_string('grade');
         }
     }
 
@@ -260,12 +263,8 @@ function export_to_excel($emarking, $context = null){
     }
     $tabledata = $newtabledata;
 		
-    $rows_total = $current +1;
-        
     // The file name of the report
     $excelfilename = clean_filename("ReporteUAI" . "-grades.xlsx");
-    // Save the data to Excel
-    $colnumber = 5;
 	// Creating a workbook.
     $workbook = new MoodleExcelWorkbook("-");
     // Sending HTTP headers.
@@ -288,13 +287,7 @@ function export_to_excel($emarking, $context = null){
     foreach ($tabledata as $data) {
         $col = 0;
         foreach (array_values($data) as $d) {
-            if ($row > 0 && $col >= $colnumber && $row <= $rows_total && $col <= $columns_total) {
-
-				$myxls->write($row, $col, $d);
-            } else {
-
-				$myxls->write_string($row, $col, $d);
-            }
+            $myxls->write($row, $col, $d);
             $col ++;
         }
         $row ++;
