@@ -21,58 +21,57 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-    require(__DIR__.'/../../config.php');
-    require_once ($CFG->dirroot."/local/notasuai/forms.php");
+require(__DIR__.'/../../config.php');
+require_once ($CFG->dirroot."/local/notasuai/forms.php");
 
-    global $DB, $PAGE, $OUTPUT, $USER;
+global $DB, $PAGE, $OUTPUT, $USER;
 
-    $url_view= '/local/notasuai/view.php';
+$url_view= '/local/notasuai/index.php';
 
-    $context = context_system::instance();
-    $url = new moodle_url($url_view);
-    $PAGE->set_url($url);
-    $PAGE->set_context($context);
-    $PAGE->set_pagelayout("standard");
+$context = context_system::instance();
+$url = new moodle_url($url_view);
+$PAGE->set_url($url);
+$PAGE->set_context($context);
+$PAGE->set_pagelayout("standard");
 
-    $category_id = optional_param("category_id", null, PARAM_INT);
-    $action = optional_param("action", "view", PARAM_TEXT);
+$category_id = optional_param("category_id", null, PARAM_INT);
+$action = optional_param("action", "view", PARAM_TEXT);
 
-    require_login();	
+require_login();
     
-	if (is_siteadmin($USER) || is_manager()){
-	// show all
-		$PAGE->set_title(get_string('title', 'local_notasuai'));
-		$PAGE->set_heading(get_string('heading', 'local_notasuai'));
+if (is_siteadmin($USER) || is_manager()){
+    // show all
+    $PAGE->set_title(get_string('title', 'local_notasuai'));
+    $PAGE->set_heading(get_string('heading', 'local_notasuai'));
 
-		$categoryform = new category();
+    $categoryform = new category();
 
-		if ($category_id > 0){
-			$error = 0;
-			$courseform = new course(null, $category_id);
-			if ($courses = $courseform->get_data()){
-				$arcourses = (array)$courses;
-				$num = 0;
-				$arr = array();
-				foreach ($arcourses as $class){
-					if ($class != 0 && $num > 1){
-						$arr[$num] = $class;
-					}
-					$num += 1;
-				}
-				$coursesstring = json_encode($arr);
-				redirect(new moodle_url("/local/notasuai/courses.php", array('courses'=>$coursesstring)));
-			}
-		}
-	}
-	else{
-		print_error(get_string("no_access", "local_notasuai"));
+    if ($category_id > 0){
+        $error = 0;
+        $courseform = new course(null, $category_id);
+        if ($courses = $courseform->get_data()){
+            $arcourses = (array)$courses;
+            $num = 0;
+            $arr = array();
+            foreach ($arcourses as $class){
+                if ($class != 0 && $num > 1){
+                    $arr[$num] = $class;
+                }
+                $num += 1;
+            }
+            $coursesstring = json_encode($arr);
+            redirect(new moodle_url("/local/notasuai/courses.php", array('courses'=>$coursesstring)));
+        }
+    }
+}
+else{
+    print_error(get_string("no_access", "local_notasuai"));
 
-	}
+}
 
 echo $OUTPUT->header();
 
-    $categoryform->display();	
-	if ($category_id > 0){
+    $categoryform->display();if ($category_id > 0){
 		$courseform->display();
 	}
 
